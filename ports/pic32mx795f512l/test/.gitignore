@@ -1,0 +1,45 @@
+# Build artifacts
+host_build/
+build/
+
+# Test executables
+test_abi_host
+test_abi
+test_main
+
+# Test results and reports
+ABI_COMPATIBILITY_REPORT.md
+test-results.xml
+*.log
+
+# Object files (redundant with root .gitignore, but explicit)
+*.o
+*.obj
+
+# Temporary files
+*.tmp
+*~
+.*.swp
+
+# IDE files
+.vscode/
+.idea/
+
+# Coverage reports
+*.gcov
+*.gcda
+*.gcno
+coverage/
+
+# Debug files
+*.dSYM/
+core
+vgcore.*
+
+# Backup files
+*.bak
+*.orig
+
+# OS-specific files
+.DS_Store
+Thumbs.db

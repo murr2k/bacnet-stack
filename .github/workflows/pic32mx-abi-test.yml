@@ -1,0 +1,148 @@
+name: PIC32MX795F512L ABI Test
+
+on:
+  push:
+    branches: [ master, main, develop ]
+    paths:
+      - 'ports/pic32mx795f512l/**'
+      - 'include/bacnet/**'
+      - 'src/bacnet/**'
+      - '.github/workflows/pic32mx-abi-test.yml'
+  pull_request:
+    branches: [ master, main, develop ]
+    paths:
+      - 'ports/pic32mx795f512l/**'
+      - 'include/bacnet/**'
+      - 'src/bacnet/**'
+      - '.github/workflows/pic32mx-abi-test.yml'
+  workflow_dispatch:
+
+jobs:
+  abi-test:
+    name: ABI Compatibility Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup build environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential gcc make
+
+    - name: Run ABI compatibility tests
+      working-directory: ports/pic32mx795f512l/test
+      run: |
+        chmod +x run-ci-tests.sh
+        ./run-ci-tests.sh
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          ports/pic32mx795f512l/test/ABI_COMPATIBILITY_REPORT.md
+          ports/pic32mx795f512l/test/build.log
+          ports/pic32mx795f512l/test/test.log
+        retention-days: 30
+
+    - name: Parse test results
+      if: always()
+      id: test-results
+      working-directory: ports/pic32mx795f512l/test
+      run: |
+        if [ -f ABI_COMPATIBILITY_REPORT.md ]; then
+          COMPAT_RATE=$(grep "Compatibility Rate:" ABI_COMPATIBILITY_REPORT.md | grep -o '[0-9.]*%')
+          echo "compatibility_rate=$COMPAT_RATE" >> $GITHUB_OUTPUT
+
+          if grep -q "BINARY COMPATIBLE" ABI_COMPATIBILITY_REPORT.md; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "badge_color=green" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "badge_color=red" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "status=error" >> $GITHUB_OUTPUT
+          echo "badge_color=yellow" >> $GITHUB_OUTPUT
+          echo "compatibility_rate=N/A" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create status badge
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      uses: schneegans/dynamic-badges-action@v1.6.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: YOUR_GIST_ID_HERE
+        filename: pic32mx-abi-badge.json
+        label: PIC32MX ABI
+        message: ${{ steps.test-results.outputs.compatibility_rate }}
+        color: ${{ steps.test-results.outputs.badge_color }}
+
+    - name: Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+
+          let comment = '## 🔍 PIC32MX795F512L ABI Compatibility Test\n\n';
+
+          try {
+            const reportPath = path.join(process.env.GITHUB_WORKSPACE,
+              'ports/pic32mx795f512l/test/ABI_COMPATIBILITY_REPORT.md');
+
+            if (fs.existsSync(reportPath)) {
+              const report = fs.readFileSync(reportPath, 'utf8');
+              const lines = report.split('\n');
+
+              // Extract key information
+              const summary = lines.slice(2, 15).join('\n');
+
+              if (report.includes('BINARY COMPATIBLE')) {
+                comment += '### ✅ Test Result: PASSED\n\n';
+              } else {
+                comment += '### ❌ Test Result: FAILED\n\n';
+              }
+
+              comment += summary;
+              comment += '\n\n[View Full Report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})';
+            } else {
+              comment += '### ⚠️ Test Result: ERROR\n\n';
+              comment += 'Test report not generated. Check the workflow logs for details.';
+            }
+          } catch (error) {
+            comment += '### ⚠️ Test Result: ERROR\n\n';
+            comment += `Error reading test results: ${error.message}`;
+          }
+
+          // Find and update existing comment or create new one
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const botComment = comments.find(comment =>
+            comment.user.type === 'Bot' &&
+            comment.body.includes('PIC32MX795F512L ABI Compatibility Test')
+          );
+
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: comment
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+          }

@@ -1,0 +1,105 @@
+name: PIC32MX795F512L ABI Compatibility Test
+
+on:
+  push:
+    paths:
+      - 'ports/pic32mx795f512l/**'
+      - 'include/**'
+      - 'src/**'
+  pull_request:
+    paths:
+      - 'ports/pic32mx795f512l/**'
+      - 'include/**'
+      - 'src/**'
+  workflow_dispatch:
+
+jobs:
+  abi-compatibility-test:
+    name: ABI Compatibility Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential gcc make
+
+    - name: Build port with host compiler
+      working-directory: ports/pic32mx795f512l/test
+      run: |
+        make -f Makefile.host clean
+        make -f Makefile.host host_build
+        make -f Makefile.host all
+
+    - name: Run ABI compatibility test
+      working-directory: ports/pic32mx795f512l/test
+      run: |
+        ./test_abi_host
+
+    - name: Check ABI compatibility status
+      working-directory: ports/pic32mx795f512l/test
+      run: |
+        if grep -q "BINARY COMPATIBLE" ABI_COMPATIBILITY_REPORT.md; then
+          echo "✅ ABI Compatibility Test PASSED"
+          echo "✅ Port is binary compatible with API headers"
+          exit 0
+        else
+          echo "❌ ABI Compatibility Test FAILED"
+          echo "❌ Port has compatibility issues"
+          cat ABI_COMPATIBILITY_REPORT.md
+          exit 1
+        fi
+
+    - name: Upload ABI report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: abi-compatibility-report
+        path: ports/pic32mx795f512l/test/ABI_COMPATIBILITY_REPORT.md
+
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('ports/pic32mx795f512l/test/ABI_COMPATIBILITY_REPORT.md', 'utf8');
+          const summary = report.split('\n').slice(0, 15).join('\n');
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '## ABI Compatibility Test Results\n\n' + summary + '\n\n[Full Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})'
+          });
+
+  cross-compile-test:
+    name: Cross-Compilation Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install XC32 compiler
+      run: |
+        # Download XC32 compiler (you'll need to host this or use Microchip's installer)
+        # This is a placeholder - you'd need to set up XC32 installation
+        echo "Note: XC32 cross-compilation requires manual setup"
+        echo "Download from: https://www.microchip.com/mplab/compilers"
+
+    - name: Attempt cross-compilation
+      working-directory: ports/pic32mx795f512l
+      continue-on-error: true
+      run: |
+        if command -v xc32-gcc &> /dev/null; then
+          make clean
+          make
+          echo "✅ Cross-compilation successful"
+        else
+          echo "⚠️ XC32 compiler not available - skipping cross-compilation"
+          echo "⚠️ Install XC32 for full testing"
+        fi

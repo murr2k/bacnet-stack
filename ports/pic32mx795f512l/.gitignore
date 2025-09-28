@@ -1,0 +1,69 @@
+# Build output directory
+build/
+dist/
+debug/
+release/
+
+# MPLAB X specific files
+nbproject/private/
+nbproject/Makefile-*
+nbproject/Package-*
+**/*.X/build/
+**/*.X/dist/
+**/*.X/debug/
+**/*.X/.generated_files/
+
+# XC32 compiler artifacts
+*.elf
+*.hex
+*.map
+*.sym
+*.lst
+*.o
+*.obj
+*.d
+*.p1
+*.pre
+*.rlf
+*.sdb
+*.cmf
+
+# IDE metadata
+.idea/
+.vscode/
+*.sublime-*
+*.IAB
+*.IAD
+*.IMB
+*.IMD
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+.#*
+
+# Debug files
+*.cof
+*.hxl
+*.mcs
+
+# Documentation build
+docs/_build/
+*.pdf
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Test artifacts (handled by test/.gitignore)
+test/host_build/
+test/*.log
+test/ABI_COMPATIBILITY_REPORT.md
+test/test_abi_host
+
+# User-specific configuration
+user_config.h
+local_settings.h

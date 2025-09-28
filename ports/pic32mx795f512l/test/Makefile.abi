@@ -1,0 +1,73 @@
+# Makefile for ABI Compatibility Testing
+# Tests that compiled binary matches published API headers
+
+CC = gcc
+CFLAGS = -Wall -g -O0
+CFLAGS += -I.. -I../../../include -I../../../src
+CFLAGS += -DTEST_MODE -DBACDL_MSTP
+CFLAGS += -DBACNET_VERSION_MAJOR=1
+CFLAGS += -DBACNET_VERSION_MINOR=0
+CFLAGS += -DBACNET_VERSION_MAINTENANCE=0
+
+# Port object files (already compiled)
+PORT_OBJS = \
+	../build/ai.o \
+	../build/ao.o \
+	../build/bi.o \
+	../build/bo.o \
+	../build/device.o \
+	../build/dlmstp.o \
+	../build/rs485.o \
+	../build/stubs.o
+
+# Required BACnet stack objects
+BACNET_OBJS = \
+	../build/../../src/bacnet/bacstr.o \
+	../build/../../src/bacnet/bacint.o \
+	../build/../../src/bacnet/bacreal.o \
+	../build/../../src/bacnet/bacdcode.o \
+	../build/../../src/bacnet/bacapp.o \
+	../build/../../src/bacnet/bactext.o \
+	../build/../../src/bacnet/bacaddr.o \
+	../build/../../src/bacnet/npdu.o \
+	../build/../../src/bacnet/basic/sys/fifo.o \
+	../build/../../src/bacnet/basic/sys/ringbuf.o \
+	../build/../../src/bacnet/datalink/mstp.o \
+	../build/../../src/bacnet/datalink/crc.o \
+	../build/../../src/bacnet/datalink/cobs.o
+
+TARGET = test_abi
+
+all: $(TARGET)
+
+$(TARGET): test_abi_compatibility.c $(PORT_OBJS) $(BACNET_OBJS)
+	$(CC) $(CFLAGS) -o $@ test_abi_compatibility.c $(PORT_OBJS) $(BACNET_OBJS) -lm
+
+# Use existing compiled objects from main build
+check-objs:
+	@if [ ! -f ../build/ai.o ]; then \
+		echo "Error: Port not built. Run 'make' in parent directory first"; \
+		exit 1; \
+	fi
+
+test: check-objs $(TARGET)
+	@echo "=========================================="
+	@echo " Running ABI Compatibility Test"
+	@echo "=========================================="
+	./$(TARGET)
+	@echo ""
+	@if grep -q "BINARY COMPATIBLE" ABI_COMPATIBILITY_REPORT.md; then \
+		echo "✅ SUCCESS: Port is binary compatible with API headers"; \
+		echo "✅ Can be shipped as compiled library"; \
+	else \
+		echo "⚠️ WARNING: Compatibility issues detected"; \
+		echo "Review ABI_COMPATIBILITY_REPORT.md for details"; \
+	fi
+
+report:
+	@cat ABI_COMPATIBILITY_REPORT.md
+
+clean:
+	rm -f $(TARGET) ABI_COMPATIBILITY_REPORT.md
+
+.PHONY: all test check-objs report clean
