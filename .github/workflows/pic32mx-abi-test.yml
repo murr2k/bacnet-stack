@@ -75,7 +75,7 @@ jobs:
       uses: schneegans/dynamic-badges-action@v1.6.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
-        gistID: YOUR_GIST_ID_HERE
+        gistID: d9e183fda10aaa641ddb6ec578293727
         filename: pic32mx-abi-badge.json
         label: PIC32MX ABI
         message: ${{ steps.test-results.outputs.compatibility_rate }}
