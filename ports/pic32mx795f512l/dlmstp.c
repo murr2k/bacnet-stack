@@ -100,9 +100,11 @@ void dlmstp_task(void)
 /**
  * @brief Send BACnet NPDU via MS/TP
  */
-int dlmstp_send_pdu(BACNET_ADDRESS *dest,
+int dlmstp_send_pdu(
+    BACNET_ADDRESS *dest,
     BACNET_NPDU_DATA *npdu_data,
-    uint8_t *pdu, unsigned pdu_len)
+    uint8_t *pdu,
+    unsigned pdu_len)
 {
     uint8_t destination_mac;
 
@@ -295,12 +297,9 @@ uint16_t MSTP_Get_Send(struct mstp_port_struct_t *mstp_port, unsigned timeout)
     if (Transmit_Packet.ready) {
         /* Create frame in output buffer */
         pdu_len = MSTP_Create_Frame(
-            mstp_port->OutputBuffer,
-            mstp_port->OutputBufferSize,
-            Transmit_Packet.frame_type,
-            Transmit_Packet.destination,
-            mstp_port->This_Station,
-            Transmit_Packet.pdu,
+            mstp_port->OutputBuffer, mstp_port->OutputBufferSize,
+            Transmit_Packet.frame_type, Transmit_Packet.destination,
+            mstp_port->This_Station, Transmit_Packet.pdu,
             Transmit_Packet.pdu_len);
 
         if (pdu_len > 0) {
@@ -345,7 +344,6 @@ uint16_t MSTP_Put_Receive(struct mstp_port_struct_t *mstp_port)
     /* Check if frame is for us */
     if ((mstp_port->DestinationAddress == mstp_port->This_Station) ||
         (mstp_port->DestinationAddress == MSTP_BROADCAST_ADDRESS)) {
-
         switch (mstp_port->FrameType) {
             case FRAME_TYPE_BACNET_DATA_NOT_EXPECTING_REPLY:
             case FRAME_TYPE_BACNET_DATA_EXPECTING_REPLY:
@@ -362,7 +360,9 @@ uint16_t MSTP_Put_Receive(struct mstp_port_struct_t *mstp_port)
                     pdu_len = mstp_port->DataLength;
 
                     /* Handle the NPDU */
-                    npdu_handler(&Receive_Address, mstp_port->InputBuffer, Receive_PDU_Len);
+                    npdu_handler(
+                        &Receive_Address, mstp_port->InputBuffer,
+                        Receive_PDU_Len);
                 }
                 break;
 
@@ -387,9 +387,10 @@ uint16_t MSTP_Put_Receive(struct mstp_port_struct_t *mstp_port)
  * @param buffer - data to send
  * @param nbytes - number of bytes to send
  */
-void MSTP_Send_Frame(struct mstp_port_struct_t *mstp_port,
-                     const uint8_t *buffer,
-                     uint16_t nbytes)
+void MSTP_Send_Frame(
+    struct mstp_port_struct_t *mstp_port,
+    const uint8_t *buffer,
+    uint16_t nbytes)
 {
     (void)mstp_port;
 

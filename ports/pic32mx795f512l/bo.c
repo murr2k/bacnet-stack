@@ -100,10 +100,12 @@ static void Binary_Output_Present_Value_Calculate(unsigned index)
         /* Find highest priority active value */
         for (priority = 0; priority < BACNET_PRIORITY_ARRAY_SIZE; priority++) {
             if (BO_Data[index].Priority_Active[priority]) {
-                BACNET_BINARY_PV new_value = BO_Data[index].Priority_Array[priority];
+                BACNET_BINARY_PV new_value =
+                    BO_Data[index].Priority_Array[priority];
 
                 /* Check minimum on/off time */
-                uint32_t time_in_state = millisecond_counter - BO_Data[index].Time_Of_State_Count_Change_ms;
+                uint32_t time_in_state = millisecond_counter -
+                    BO_Data[index].Time_Of_State_Count_Change_ms;
 
                 if (BO_Data[index].Last_State == BINARY_ACTIVE &&
                     new_value == BINARY_INACTIVE &&
@@ -123,7 +125,8 @@ static void Binary_Output_Present_Value_Calculate(unsigned index)
                 if (BO_Data[index].Present_Value != new_value) {
                     BO_Data[index].Last_State = BO_Data[index].Present_Value;
                     BO_Data[index].Present_Value = new_value;
-                    BO_Data[index].Time_Of_State_Count_Change_ms = millisecond_counter;
+                    BO_Data[index].Time_Of_State_Count_Change_ms =
+                        millisecond_counter;
                 }
                 found = true;
                 break;
@@ -132,10 +135,13 @@ static void Binary_Output_Present_Value_Calculate(unsigned index)
 
         /* Use relinquish default if no priority is active */
         if (!found) {
-            if (BO_Data[index].Present_Value != BO_Data[index].Relinquish_Default) {
+            if (BO_Data[index].Present_Value !=
+                BO_Data[index].Relinquish_Default) {
                 BO_Data[index].Last_State = BO_Data[index].Present_Value;
-                BO_Data[index].Present_Value = BO_Data[index].Relinquish_Default;
-                BO_Data[index].Time_Of_State_Count_Change_ms = millisecond_counter;
+                BO_Data[index].Present_Value =
+                    BO_Data[index].Relinquish_Default;
+                BO_Data[index].Time_Of_State_Count_Change_ms =
+                    millisecond_counter;
             }
         }
     }
@@ -182,7 +188,8 @@ unsigned Binary_Output_Instance_To_Index(uint32_t object_instance)
 /**
  * @brief Get binary output object name
  */
-bool Binary_Output_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
+bool Binary_Output_Object_Name(
+    uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
 {
     bool status = false;
     unsigned index = Binary_Output_Instance_To_Index(object_instance);
@@ -197,7 +204,8 @@ bool Binary_Output_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING
 /**
  * @brief Set binary output object name
  */
-bool Binary_Output_Object_Name_Set(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
+bool Binary_Output_Object_Name_Set(
+    uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
 {
     bool status = false;
     unsigned index = Binary_Output_Instance_To_Index(object_instance);
@@ -227,7 +235,8 @@ BACNET_BINARY_PV Binary_Output_Present_Value(uint32_t object_instance)
 /**
  * @brief Set binary output present value
  */
-bool Binary_Output_Present_Value_Set(uint32_t object_instance, BACNET_BINARY_PV value, unsigned priority)
+bool Binary_Output_Present_Value_Set(
+    uint32_t object_instance, BACNET_BINARY_PV value, unsigned priority)
 {
     bool status = false;
     unsigned index = Binary_Output_Instance_To_Index(object_instance);
@@ -235,7 +244,7 @@ bool Binary_Output_Present_Value_Set(uint32_t object_instance, BACNET_BINARY_PV 
     if (index < MAX_BINARY_OUTPUTS) {
         if (priority && (priority <= BACNET_PRIORITY_ARRAY_SIZE)) {
             /* Set priority value */
-            priority--;  /* Convert to 0-based index */
+            priority--; /* Convert to 0-based index */
             BO_Data[index].Priority_Array[priority] = value;
             BO_Data[index].Priority_Active[priority] = true;
 
@@ -254,7 +263,8 @@ bool Binary_Output_Present_Value_Set(uint32_t object_instance, BACNET_BINARY_PV 
                 BO_Data[index].Changed = true;
                 BO_Data[index].Last_State = BO_Data[index].Present_Value;
                 BO_Data[index].Present_Value = value;
-                BO_Data[index].Time_Of_State_Count_Change_ms = millisecond_counter;
+                BO_Data[index].Time_Of_State_Count_Change_ms =
+                    millisecond_counter;
             }
             status = true;
         }
@@ -266,14 +276,15 @@ bool Binary_Output_Present_Value_Set(uint32_t object_instance, BACNET_BINARY_PV 
 /**
  * @brief Relinquish binary output present value
  */
-bool Binary_Output_Present_Value_Relinquish(uint32_t object_instance, unsigned priority)
+bool Binary_Output_Present_Value_Relinquish(
+    uint32_t object_instance, unsigned priority)
 {
     bool status = false;
     unsigned index = Binary_Output_Instance_To_Index(object_instance);
 
     if (index < MAX_BINARY_OUTPUTS) {
         if (priority && (priority <= BACNET_PRIORITY_ARRAY_SIZE)) {
-            priority--;  /* Convert to 0-based index */
+            priority--; /* Convert to 0-based index */
             BO_Data[index].Priority_Active[priority] = false;
 
             /* Calculate new present value */
@@ -336,7 +347,8 @@ BACNET_POLARITY Binary_Output_Polarity(uint32_t object_instance)
 /**
  * @brief Set binary output polarity
  */
-bool Binary_Output_Polarity_Set(uint32_t object_instance, BACNET_POLARITY polarity)
+bool Binary_Output_Polarity_Set(
+    uint32_t object_instance, BACNET_POLARITY polarity)
 {
     bool status = false;
     unsigned index = Binary_Output_Instance_To_Index(object_instance);
@@ -367,7 +379,8 @@ BACNET_BINARY_PV Binary_Output_Relinquish_Default(uint32_t object_instance)
 /**
  * @brief Set binary output relinquish default
  */
-bool Binary_Output_Relinquish_Default_Set(uint32_t object_instance, BACNET_BINARY_PV value)
+bool Binary_Output_Relinquish_Default_Set(
+    uint32_t object_instance, BACNET_BINARY_PV value)
 {
     bool status = false;
     unsigned index = Binary_Output_Instance_To_Index(object_instance);
@@ -383,14 +396,15 @@ bool Binary_Output_Relinquish_Default_Set(uint32_t object_instance, BACNET_BINAR
 /**
  * @brief Get binary output priority array value
  */
-BACNET_BINARY_PV Binary_Output_Priority_Array_Value(uint32_t object_instance, unsigned priority)
+BACNET_BINARY_PV
+Binary_Output_Priority_Array_Value(uint32_t object_instance, unsigned priority)
 {
     BACNET_BINARY_PV value = BINARY_INACTIVE;
     unsigned index = Binary_Output_Instance_To_Index(object_instance);
 
     if (index < MAX_BINARY_OUTPUTS) {
         if (priority && (priority <= BACNET_PRIORITY_ARRAY_SIZE)) {
-            priority--;  /* Convert to 0-based index */
+            priority--; /* Convert to 0-based index */
             if (BO_Data[index].Priority_Active[priority]) {
                 value = BO_Data[index].Priority_Array[priority];
             }
@@ -505,13 +519,15 @@ const char *Binary_Output_Description(uint32_t object_instance)
 /**
  * @brief Set binary output description
  */
-bool Binary_Output_Description_Set(uint32_t object_instance, const char *description)
+bool Binary_Output_Description_Set(
+    uint32_t object_instance, const char *description)
 {
     bool status = false;
     unsigned index = Binary_Output_Instance_To_Index(object_instance);
 
     if (index < MAX_BINARY_OUTPUTS && description) {
-        status = characterstring_init_ansi(&BO_Data[index].Description, description);
+        status =
+            characterstring_init_ansi(&BO_Data[index].Description, description);
     }
 
     return status;

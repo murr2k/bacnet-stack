@@ -105,7 +105,8 @@ unsigned Binary_Input_Instance_To_Index(uint32_t object_instance)
 /**
  * @brief Get binary input object name
  */
-bool Binary_Input_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
+bool Binary_Input_Object_Name(
+    uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
 {
     bool status = false;
     unsigned index = Binary_Input_Instance_To_Index(object_instance);
@@ -120,7 +121,8 @@ bool Binary_Input_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING 
 /**
  * @brief Set binary input object name
  */
-bool Binary_Input_Object_Name_Set(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
+bool Binary_Input_Object_Name_Set(
+    uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
 {
     bool status = false;
     unsigned index = Binary_Input_Instance_To_Index(object_instance);
@@ -150,13 +152,15 @@ BACNET_BINARY_PV Binary_Input_Present_Value(uint32_t object_instance)
 /**
  * @brief Set binary input present value
  */
-bool Binary_Input_Present_Value_Set(uint32_t object_instance, BACNET_BINARY_PV value)
+bool Binary_Input_Present_Value_Set(
+    uint32_t object_instance, BACNET_BINARY_PV value)
 {
     bool status = false;
     unsigned index = Binary_Input_Instance_To_Index(object_instance);
 
     if (index < MAX_BINARY_INPUTS) {
-        if (BI_Data[index].Out_Of_Service || BI_Data[index].Present_Value_writable) {
+        if (BI_Data[index].Out_Of_Service ||
+            BI_Data[index].Present_Value_writable) {
             /* Check for COV */
             if (BI_Data[index].Present_Value != value) {
                 BI_Data[index].Changed = true;
@@ -214,7 +218,8 @@ BACNET_RELIABILITY Binary_Input_Reliability(uint32_t object_instance)
 /**
  * @brief Set binary input reliability
  */
-bool Binary_Input_Reliability_Set(uint32_t object_instance, BACNET_RELIABILITY reliability)
+bool Binary_Input_Reliability_Set(
+    uint32_t object_instance, BACNET_RELIABILITY reliability)
 {
     unsigned index = Binary_Input_Instance_To_Index(object_instance);
     bool status = false;
@@ -245,7 +250,8 @@ BACNET_POLARITY Binary_Input_Polarity(uint32_t object_instance)
 /**
  * @brief Set binary input polarity
  */
-bool Binary_Input_Polarity_Set(uint32_t object_instance, BACNET_POLARITY polarity)
+bool Binary_Input_Polarity_Set(
+    uint32_t object_instance, BACNET_POLARITY polarity)
 {
     bool status = false;
     unsigned index = Binary_Input_Instance_To_Index(object_instance);
@@ -303,13 +309,15 @@ const char *Binary_Input_Active_Text(uint32_t object_instance)
 /**
  * @brief Set binary input active text
  */
-bool Binary_Input_Active_Text_Set(uint32_t object_instance, const char *active_text)
+bool Binary_Input_Active_Text_Set(
+    uint32_t object_instance, const char *active_text)
 {
     bool status = false;
     unsigned index = Binary_Input_Instance_To_Index(object_instance);
 
     if (index < MAX_BINARY_INPUTS && active_text) {
-        status = characterstring_init_ansi(&BI_Data[index].Active_Text, active_text);
+        status =
+            characterstring_init_ansi(&BI_Data[index].Active_Text, active_text);
     }
 
     return status;
@@ -333,13 +341,15 @@ const char *Binary_Input_Inactive_Text(uint32_t object_instance)
 /**
  * @brief Set binary input inactive text
  */
-bool Binary_Input_Inactive_Text_Set(uint32_t object_instance, const char *inactive_text)
+bool Binary_Input_Inactive_Text_Set(
+    uint32_t object_instance, const char *inactive_text)
 {
     bool status = false;
     unsigned index = Binary_Input_Instance_To_Index(object_instance);
 
     if (index < MAX_BINARY_INPUTS && inactive_text) {
-        status = characterstring_init_ansi(&BI_Data[index].Inactive_Text, inactive_text);
+        status = characterstring_init_ansi(
+            &BI_Data[index].Inactive_Text, inactive_text);
     }
 
     return status;
@@ -363,13 +373,15 @@ const char *Binary_Input_Description(uint32_t object_instance)
 /**
  * @brief Set binary input description
  */
-bool Binary_Input_Description_Set(uint32_t object_instance, const char *description)
+bool Binary_Input_Description_Set(
+    uint32_t object_instance, const char *description)
 {
     bool status = false;
     unsigned index = Binary_Input_Instance_To_Index(object_instance);
 
     if (index < MAX_BINARY_INPUTS && description) {
-        status = characterstring_init_ansi(&BI_Data[index].Description, description);
+        status =
+            characterstring_init_ansi(&BI_Data[index].Description, description);
     }
 
     return status;

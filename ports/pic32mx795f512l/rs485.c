@@ -21,7 +21,8 @@
 /* FIFO buffers for receive and transmit */
 static volatile FIFO_BUFFER rx_fifo;
 static volatile uint8_t rx_fifo_buffer[BACNET_RX_FIFO_SIZE];
-static volatile uint32_t rx_timestamp[BACNET_RX_FIFO_SIZE];  /* Store timestamps separately */
+static volatile uint32_t
+    rx_timestamp[BACNET_RX_FIFO_SIZE]; /* Store timestamps separately */
 static volatile uint16_t rx_timestamp_head = 0;
 static volatile uint16_t rx_timestamp_tail = 0;
 
@@ -43,7 +44,9 @@ extern volatile uint32_t millisecond_counter;
 void RS485_Initialize(void)
 {
     /* Initialize FIFO */
-    FIFO_Init((FIFO_BUFFER *)&rx_fifo, (volatile uint8_t *)rx_fifo_buffer, sizeof(rx_fifo_buffer));
+    FIFO_Init(
+        (FIFO_BUFFER *)&rx_fifo, (volatile uint8_t *)rx_fifo_buffer,
+        sizeof(rx_fifo_buffer));
     transmitting = false;
 }
 
@@ -125,7 +128,7 @@ void RS485_Clear_Statistics(void)
     tx_bytes = 0;
 }
 
-#else  /* !TEST_MODE - Real hardware implementation */
+#else /* !TEST_MODE - Real hardware implementation */
 
 /**
  * @brief Initialize RS-485 interface
@@ -133,11 +136,13 @@ void RS485_Clear_Statistics(void)
 void RS485_Initialize(void)
 {
     /* Initialize FIFO */
-    FIFO_Init((FIFO_BUFFER *)&rx_fifo, (volatile uint8_t *)rx_fifo_buffer, sizeof(rx_fifo_buffer));
+    FIFO_Init(
+        (FIFO_BUFFER *)&rx_fifo, (volatile uint8_t *)rx_fifo_buffer,
+        sizeof(rx_fifo_buffer));
 
     /* Configure RS-485 driver enable pin (RD5) */
-    LATDCLR = U1RTS_PIN;   // Disable transmitter initially
-    TRISDCLR = U1RTS_PIN;  // Set as output
+    LATDCLR = U1RTS_PIN; // Disable transmitter initially
+    TRISDCLR = U1RTS_PIN; // Set as output
 
     /* Configure UART1 pins */
     /* RF2 = U1RX (input) */
@@ -150,29 +155,29 @@ void RS485_Initialize(void)
     /* U1RX is on RF2, U1TX is on RF8 - these are fixed */
 
     /* Configure UART1 */
-    U1MODE = 0;             // Clear mode register
-    U1STA = 0;              // Clear status register
+    U1MODE = 0; // Clear mode register
+    U1STA = 0; // Clear status register
 
     /* Configure for 8N1 at 19200 baud (default) */
     RS485_Set_Baud_Rate(19200);
 
-    U1MODEbits.PDSEL = 0;  // 8-bit data, no parity
-    U1MODEbits.STSEL = 0;  // 1 stop bit
-    U1MODEbits.BRGH = 1;   // High-speed mode
+    U1MODEbits.PDSEL = 0; // 8-bit data, no parity
+    U1MODEbits.STSEL = 0; // 1 stop bit
+    U1MODEbits.BRGH = 1; // High-speed mode
 
     /* Configure interrupts */
     IPC6SET = (_IPC6_U1IP_MASK & (UART1_PRIORITY << _IPC6_U1IP_POSITION)) |
-              (_IPC6_U1IS_MASK & (0 << _IPC6_U1IS_POSITION));
+        (_IPC6_U1IS_MASK & (0 << _IPC6_U1IS_POSITION));
 
-    IFS0CLR = _IFS0_U1RXIF_MASK | _IFS0_U1TXIF_MASK;  // Clear flags
+    IFS0CLR = _IFS0_U1RXIF_MASK | _IFS0_U1TXIF_MASK; // Clear flags
 
     /* Enable RX interrupt, TX interrupt enabled when transmitting */
     IEC0SET = _IEC0_U1RXIE_MASK;
 
     /* Enable UART */
-    U1STAbits.URXEN = 1;   // Enable receiver
-    U1STAbits.UTXEN = 1;   // Enable transmitter
-    U1MODEbits.ON = 1;     // Enable UART
+    U1STAbits.URXEN = 1; // Enable receiver
+    U1STAbits.UTXEN = 1; // Enable transmitter
+    U1MODEbits.ON = 1; // Enable UART
 }
 
 /**
@@ -278,7 +283,7 @@ bool RS485_ReceiveError(void)
 
     /* Check for overrun error */
     if (U1STAbits.OERR) {
-        U1STAbits.OERR = 0;  // Clear error
+        U1STAbits.OERR = 0; // Clear error
         error = true;
     }
 
@@ -338,10 +343,11 @@ void __ISR(_UART1_VECTOR, IPL5AUTO) UART1Handler(void)
             tx_count--;
         } else {
             /* Transmission complete */
-            IEC0CLR = _IEC0_U1TXIE_MASK;  // Disable TX interrupt
+            IEC0CLR = _IEC0_U1TXIE_MASK; // Disable TX interrupt
 
             /* Wait for transmit shift register to empty */
-            while (!U1STAbits.TRMT);
+            while (!U1STAbits.TRMT)
+                ;
 
             /* Small hold time before disabling driver */
             DelayUs(10);

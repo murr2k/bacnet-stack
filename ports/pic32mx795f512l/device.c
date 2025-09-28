@@ -191,9 +191,7 @@ BACNET_DEVICE_STATUS Device_System_Status(void)
 /**
  * @brief Get device object name
  */
-bool Device_Object_Name(
-    uint32_t instance,
-    BACNET_CHARACTER_STRING *object_name)
+bool Device_Object_Name(uint32_t instance, BACNET_CHARACTER_STRING *object_name)
 {
     bool status = false;
 
@@ -265,7 +263,8 @@ void Device_Init(object_functions_t *object_table)
     object_table[1].Object_Value_List = NULL;
     object_table[1].Object_COV = Analog_Input_Change_Of_Value;
     object_table[1].Object_COV_Clear = Analog_Input_Change_Of_Value_Clear;
-    object_table[1].Object_Intrinsic_Reporting = Analog_Input_Intrinsic_Reporting;
+    object_table[1].Object_Intrinsic_Reporting =
+        Analog_Input_Intrinsic_Reporting;
 
     /* Analog Output */
     object_table[2].Object_Type = OBJECT_ANALOG_OUTPUT;
@@ -299,7 +298,8 @@ void Device_Init(object_functions_t *object_table)
     object_table[3].Object_Value_List = NULL;
     object_table[3].Object_COV = Binary_Input_Change_Of_Value;
     object_table[3].Object_COV_Clear = Binary_Input_Change_Of_Value_Clear;
-    object_table[3].Object_Intrinsic_Reporting = Binary_Input_Intrinsic_Reporting;
+    object_table[3].Object_Intrinsic_Reporting =
+        Binary_Input_Intrinsic_Reporting;
 
     /* Binary Output */
     object_table[4].Object_Type = OBJECT_BINARY_OUTPUT;
@@ -355,75 +355,77 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata)
 
     switch (rpdata->object_property) {
         case PROP_OBJECT_IDENTIFIER:
-            apdu_len = encode_application_object_id(&rpdata->application_data[0],
-                OBJECT_DEVICE, Device_Object_Instance);
+            apdu_len = encode_application_object_id(
+                &rpdata->application_data[0], OBJECT_DEVICE,
+                Device_Object_Instance);
             break;
 
         case PROP_OBJECT_NAME:
             Device_Object_Name(Device_Object_Instance, &char_string);
-            apdu_len = encode_application_character_string(&rpdata->application_data[0],
-                &char_string);
+            apdu_len = encode_application_character_string(
+                &rpdata->application_data[0], &char_string);
             break;
 
         case PROP_OBJECT_TYPE:
-            apdu_len = encode_application_enumerated(&rpdata->application_data[0],
-                OBJECT_DEVICE);
+            apdu_len = encode_application_enumerated(
+                &rpdata->application_data[0], OBJECT_DEVICE);
             break;
 
         case PROP_SYSTEM_STATUS:
-            apdu_len = encode_application_enumerated(&rpdata->application_data[0],
-                Device_System_Status());
+            apdu_len = encode_application_enumerated(
+                &rpdata->application_data[0], Device_System_Status());
             break;
 
         case PROP_VENDOR_NAME:
             characterstring_init_ansi(&char_string, Device_Vendor_Name());
-            apdu_len = encode_application_character_string(&rpdata->application_data[0],
-                &char_string);
+            apdu_len = encode_application_character_string(
+                &rpdata->application_data[0], &char_string);
             break;
 
         case PROP_VENDOR_IDENTIFIER:
-            apdu_len = encode_application_unsigned(&rpdata->application_data[0],
-                Device_Vendor_Identifier());
+            apdu_len = encode_application_unsigned(
+                &rpdata->application_data[0], Device_Vendor_Identifier());
             break;
 
         case PROP_MODEL_NAME:
             characterstring_init_ansi(&char_string, Device_Model_Name());
-            apdu_len = encode_application_character_string(&rpdata->application_data[0],
-                &char_string);
+            apdu_len = encode_application_character_string(
+                &rpdata->application_data[0], &char_string);
             break;
 
         case PROP_FIRMWARE_REVISION:
             characterstring_init_ansi(&char_string, Device_Firmware_Revision());
-            apdu_len = encode_application_character_string(&rpdata->application_data[0],
-                &char_string);
+            apdu_len = encode_application_character_string(
+                &rpdata->application_data[0], &char_string);
             break;
 
         case PROP_APPLICATION_SOFTWARE_VERSION:
-            characterstring_init_ansi(&char_string, Device_Application_Software_Version());
-            apdu_len = encode_application_character_string(&rpdata->application_data[0],
-                &char_string);
+            characterstring_init_ansi(
+                &char_string, Device_Application_Software_Version());
+            apdu_len = encode_application_character_string(
+                &rpdata->application_data[0], &char_string);
             break;
 
         case PROP_LOCATION:
             characterstring_init_ansi(&char_string, Device_Location());
-            apdu_len = encode_application_character_string(&rpdata->application_data[0],
-                &char_string);
+            apdu_len = encode_application_character_string(
+                &rpdata->application_data[0], &char_string);
             break;
 
         case PROP_DESCRIPTION:
             characterstring_init_ansi(&char_string, Device_Description());
-            apdu_len = encode_application_character_string(&rpdata->application_data[0],
-                &char_string);
+            apdu_len = encode_application_character_string(
+                &rpdata->application_data[0], &char_string);
             break;
 
         case PROP_PROTOCOL_VERSION:
-            apdu_len = encode_application_unsigned(&rpdata->application_data[0],
-                Device_Protocol_Version());
+            apdu_len = encode_application_unsigned(
+                &rpdata->application_data[0], Device_Protocol_Version());
             break;
 
         case PROP_PROTOCOL_REVISION:
-            apdu_len = encode_application_unsigned(&rpdata->application_data[0],
-                Device_Protocol_Revision());
+            apdu_len = encode_application_unsigned(
+                &rpdata->application_data[0], Device_Protocol_Revision());
             break;
 
         case PROP_PROTOCOL_SERVICES_SUPPORTED:
@@ -431,11 +433,15 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata)
             /* Per PICS, we support these services */
             bitstring_set_bit(&bit_string, SERVICE_SUPPORTED_I_AM, true);
             bitstring_set_bit(&bit_string, SERVICE_SUPPORTED_WHO_IS, true);
-            bitstring_set_bit(&bit_string, SERVICE_SUPPORTED_READ_PROPERTY, true);
-            bitstring_set_bit(&bit_string, SERVICE_SUPPORTED_WRITE_PROPERTY, true);
-            bitstring_set_bit(&bit_string, SERVICE_SUPPORTED_DEVICE_COMMUNICATION_CONTROL, true);
-            apdu_len = encode_application_bitstring(&rpdata->application_data[0],
-                &bit_string);
+            bitstring_set_bit(
+                &bit_string, SERVICE_SUPPORTED_READ_PROPERTY, true);
+            bitstring_set_bit(
+                &bit_string, SERVICE_SUPPORTED_WRITE_PROPERTY, true);
+            bitstring_set_bit(
+                &bit_string, SERVICE_SUPPORTED_DEVICE_COMMUNICATION_CONTROL,
+                true);
+            apdu_len = encode_application_bitstring(
+                &rpdata->application_data[0], &bit_string);
             break;
 
         case PROP_PROTOCOL_OBJECT_TYPES_SUPPORTED:
@@ -446,28 +452,29 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata)
             bitstring_set_bit(&bit_string, OBJECT_ANALOG_OUTPUT, true);
             bitstring_set_bit(&bit_string, OBJECT_BINARY_INPUT, true);
             bitstring_set_bit(&bit_string, OBJECT_BINARY_OUTPUT, true);
-            apdu_len = encode_application_bitstring(&rpdata->application_data[0],
-                &bit_string);
+            apdu_len = encode_application_bitstring(
+                &rpdata->application_data[0], &bit_string);
             break;
 
         case PROP_MAX_APDU_LENGTH_ACCEPTED:
-            apdu_len = encode_application_unsigned(&rpdata->application_data[0],
+            apdu_len = encode_application_unsigned(
+                &rpdata->application_data[0],
                 Device_Max_APDU_Length_Accepted());
             break;
 
         case PROP_SEGMENTATION_SUPPORTED:
-            apdu_len = encode_application_enumerated(&rpdata->application_data[0],
-                Device_Segmentation_Supported());
+            apdu_len = encode_application_enumerated(
+                &rpdata->application_data[0], Device_Segmentation_Supported());
             break;
 
         case PROP_APDU_TIMEOUT:
-            apdu_len = encode_application_unsigned(&rpdata->application_data[0],
-                3000);  /* 3 seconds */
+            apdu_len = encode_application_unsigned(
+                &rpdata->application_data[0], 3000); /* 3 seconds */
             break;
 
         case PROP_NUMBER_OF_APDU_RETRIES:
-            apdu_len = encode_application_unsigned(&rpdata->application_data[0],
-                3);
+            apdu_len =
+                encode_application_unsigned(&rpdata->application_data[0], 3);
             break;
 
         case PROP_DEVICE_ADDRESS_BINDING:
@@ -476,8 +483,8 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata)
             break;
 
         case PROP_DATABASE_REVISION:
-            apdu_len = encode_application_unsigned(&rpdata->application_data[0],
-                Device_Database_Revision());
+            apdu_len = encode_application_unsigned(
+                &rpdata->application_data[0], Device_Database_Revision());
             break;
 
         default:
@@ -521,38 +528,30 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data)
  * @brief Property lists for RPM support
  */
 void Device_Property_Lists(
-    const int **pRequired,
-    const int **pOptional,
-    const int **pProprietary)
+    const int **pRequired, const int **pOptional, const int **pProprietary)
 {
-    static const int Required[] = {
-        PROP_OBJECT_IDENTIFIER,
-        PROP_OBJECT_NAME,
-        PROP_OBJECT_TYPE,
-        PROP_SYSTEM_STATUS,
-        PROP_VENDOR_NAME,
-        PROP_VENDOR_IDENTIFIER,
-        PROP_MODEL_NAME,
-        PROP_FIRMWARE_REVISION,
-        PROP_APPLICATION_SOFTWARE_VERSION,
-        PROP_PROTOCOL_VERSION,
-        PROP_PROTOCOL_REVISION,
-        PROP_PROTOCOL_SERVICES_SUPPORTED,
-        PROP_PROTOCOL_OBJECT_TYPES_SUPPORTED,
-        PROP_MAX_APDU_LENGTH_ACCEPTED,
-        PROP_SEGMENTATION_SUPPORTED,
-        PROP_APDU_TIMEOUT,
-        PROP_NUMBER_OF_APDU_RETRIES,
-        PROP_DEVICE_ADDRESS_BINDING,
-        PROP_DATABASE_REVISION,
-        -1
-    };
+    static const int Required[] = { PROP_OBJECT_IDENTIFIER,
+                                    PROP_OBJECT_NAME,
+                                    PROP_OBJECT_TYPE,
+                                    PROP_SYSTEM_STATUS,
+                                    PROP_VENDOR_NAME,
+                                    PROP_VENDOR_IDENTIFIER,
+                                    PROP_MODEL_NAME,
+                                    PROP_FIRMWARE_REVISION,
+                                    PROP_APPLICATION_SOFTWARE_VERSION,
+                                    PROP_PROTOCOL_VERSION,
+                                    PROP_PROTOCOL_REVISION,
+                                    PROP_PROTOCOL_SERVICES_SUPPORTED,
+                                    PROP_PROTOCOL_OBJECT_TYPES_SUPPORTED,
+                                    PROP_MAX_APDU_LENGTH_ACCEPTED,
+                                    PROP_SEGMENTATION_SUPPORTED,
+                                    PROP_APDU_TIMEOUT,
+                                    PROP_NUMBER_OF_APDU_RETRIES,
+                                    PROP_DEVICE_ADDRESS_BINDING,
+                                    PROP_DATABASE_REVISION,
+                                    -1 };
 
-    static const int Optional[] = {
-        PROP_LOCATION,
-        PROP_DESCRIPTION,
-        -1
-    };
+    static const int Optional[] = { PROP_LOCATION, PROP_DESCRIPTION, -1 };
 
     if (pRequired) {
         *pRequired = Required;

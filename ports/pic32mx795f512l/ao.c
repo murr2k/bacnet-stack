@@ -130,7 +130,8 @@ static void Analog_Output_Present_Value_Calculate(unsigned index)
         /* Find highest priority active value */
         for (priority = 0; priority < BACNET_PRIORITY_ARRAY_SIZE; priority++) {
             if (AO_Data[index].Priority_Active[priority]) {
-                AO_Data[index].Present_Value = AO_Data[index].Priority_Array[priority];
+                AO_Data[index].Present_Value =
+                    AO_Data[index].Priority_Array[priority];
                 found = true;
                 break;
             }
@@ -146,7 +147,8 @@ static void Analog_Output_Present_Value_Calculate(unsigned index)
 /**
  * @brief Get analog output object name
  */
-bool Analog_Output_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
+bool Analog_Output_Object_Name(
+    uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
 {
     bool status = false;
     unsigned index = Analog_Output_Instance_To_Index(object_instance);
@@ -161,7 +163,8 @@ bool Analog_Output_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING
 /**
  * @brief Set analog output object name
  */
-bool Analog_Output_Object_Name_Set(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
+bool Analog_Output_Object_Name_Set(
+    uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
 {
     bool status = false;
     unsigned index = Analog_Output_Instance_To_Index(object_instance);
@@ -191,7 +194,8 @@ float Analog_Output_Present_Value(uint32_t object_instance)
 /**
  * @brief Set analog output present value
  */
-bool Analog_Output_Present_Value_Set(uint32_t object_instance, float value, unsigned priority)
+bool Analog_Output_Present_Value_Set(
+    uint32_t object_instance, float value, unsigned priority)
 {
     bool status = false;
     unsigned index = Analog_Output_Instance_To_Index(object_instance);
@@ -200,10 +204,9 @@ bool Analog_Output_Present_Value_Set(uint32_t object_instance, float value, unsi
         /* Check limits */
         if (value >= AO_Data[index].Min_Present_Value &&
             value <= AO_Data[index].Max_Present_Value) {
-
             if (priority && (priority <= BACNET_PRIORITY_ARRAY_SIZE)) {
                 /* Set priority value */
-                priority--;  /* Convert to 0-based index */
+                priority--; /* Convert to 0-based index */
                 AO_Data[index].Priority_Array[priority] = value;
                 AO_Data[index].Priority_Active[priority] = true;
 
@@ -212,7 +215,8 @@ bool Analog_Output_Present_Value_Set(uint32_t object_instance, float value, unsi
                 Analog_Output_Present_Value_Calculate(index);
 
                 /* Check for COV */
-                if (fabs(prior_value - AO_Data[index].Present_Value) >= AO_Data[index].COV_Increment) {
+                if (fabs(prior_value - AO_Data[index].Present_Value) >=
+                    AO_Data[index].COV_Increment) {
                     AO_Data[index].Changed = true;
                 }
                 status = true;
@@ -235,14 +239,15 @@ bool Analog_Output_Present_Value_Set(uint32_t object_instance, float value, unsi
 /**
  * @brief Relinquish analog output present value
  */
-bool Analog_Output_Present_Value_Relinquish(uint32_t object_instance, unsigned priority)
+bool Analog_Output_Present_Value_Relinquish(
+    uint32_t object_instance, unsigned priority)
 {
     bool status = false;
     unsigned index = Analog_Output_Instance_To_Index(object_instance);
 
     if (index < MAX_ANALOG_OUTPUTS) {
         if (priority && (priority <= BACNET_PRIORITY_ARRAY_SIZE)) {
-            priority--;  /* Convert to 0-based index */
+            priority--; /* Convert to 0-based index */
             AO_Data[index].Priority_Active[priority] = false;
 
             /* Calculate new present value */
@@ -250,7 +255,8 @@ bool Analog_Output_Present_Value_Relinquish(uint32_t object_instance, unsigned p
             Analog_Output_Present_Value_Calculate(index);
 
             /* Check for COV */
-            if (fabs(prior_value - AO_Data[index].Present_Value) >= AO_Data[index].COV_Increment) {
+            if (fabs(prior_value - AO_Data[index].Present_Value) >=
+                AO_Data[index].COV_Increment) {
                 AO_Data[index].Changed = true;
             }
             status = true;
@@ -352,14 +358,15 @@ bool Analog_Output_Relinquish_Default_Set(uint32_t object_instance, float value)
 /**
  * @brief Get analog output priority array value
  */
-float Analog_Output_Priority_Array_Value(uint32_t object_instance, unsigned priority)
+float Analog_Output_Priority_Array_Value(
+    uint32_t object_instance, unsigned priority)
 {
     float value = 0.0;
     unsigned index = Analog_Output_Instance_To_Index(object_instance);
 
     if (index < MAX_ANALOG_OUTPUTS) {
         if (priority && (priority <= BACNET_PRIORITY_ARRAY_SIZE)) {
-            priority--;  /* Convert to 0-based index */
+            priority--; /* Convert to 0-based index */
             if (AO_Data[index].Priority_Active[priority]) {
                 value = AO_Data[index].Priority_Array[priority];
             }
@@ -387,13 +394,15 @@ const char *Analog_Output_Description(uint32_t object_instance)
 /**
  * @brief Set analog output description
  */
-bool Analog_Output_Description_Set(uint32_t object_instance, const char *description)
+bool Analog_Output_Description_Set(
+    uint32_t object_instance, const char *description)
 {
     bool status = false;
     unsigned index = Analog_Output_Instance_To_Index(object_instance);
 
     if (index < MAX_ANALOG_OUTPUTS && description) {
-        status = characterstring_init_ansi(&AO_Data[index].Description, description);
+        status =
+            characterstring_init_ansi(&AO_Data[index].Description, description);
     }
 
     return status;

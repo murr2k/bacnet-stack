@@ -37,10 +37,7 @@ uint16_t MSTP_Get_Reply(struct mstp_port_struct_t *mstp_port, unsigned timeout)
 }
 
 /* NPDU handler - processes incoming network PDUs */
-void npdu_handler(
-    BACNET_ADDRESS *src,
-    uint8_t *pdu,
-    uint16_t pdu_len)
+void npdu_handler(BACNET_ADDRESS *src, uint8_t *pdu, uint16_t pdu_len)
 {
     /* Process NPDU here - simplified for now */
     (void)src;
@@ -49,8 +46,7 @@ void npdu_handler(
 }
 
 /* Analog Input property handlers */
-int Analog_Input_Read_Property(
-    BACNET_READ_PROPERTY_DATA *rpdata)
+int Analog_Input_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
 {
     int apdu_len = 0;
     uint8_t *apdu = NULL;
@@ -69,17 +65,19 @@ int Analog_Input_Read_Property(
 
     switch (rpdata->object_property) {
         case PROP_OBJECT_IDENTIFIER:
-            apdu_len = encode_application_object_id(&apdu[0],
-                OBJECT_ANALOG_INPUT, object_instance);
+            apdu_len = encode_application_object_id(
+                &apdu[0], OBJECT_ANALOG_INPUT, object_instance);
             break;
 
         case PROP_OBJECT_NAME:
             Analog_Input_Object_Name(object_instance, &char_string);
-            apdu_len = encode_application_character_string(&apdu[0], &char_string);
+            apdu_len =
+                encode_application_character_string(&apdu[0], &char_string);
             break;
 
         case PROP_OBJECT_TYPE:
-            apdu_len = encode_application_enumerated(&apdu[0], OBJECT_ANALOG_INPUT);
+            apdu_len =
+                encode_application_enumerated(&apdu[0], OBJECT_ANALOG_INPUT);
             break;
 
         case PROP_PRESENT_VALUE:
@@ -92,19 +90,20 @@ int Analog_Input_Read_Property(
             bitstring_set_bit(&bit_string, STATUS_FLAG_IN_ALARM, false);
             bitstring_set_bit(&bit_string, STATUS_FLAG_FAULT, false);
             bitstring_set_bit(&bit_string, STATUS_FLAG_OVERRIDDEN, false);
-            bitstring_set_bit(&bit_string, STATUS_FLAG_OUT_OF_SERVICE,
+            bitstring_set_bit(
+                &bit_string, STATUS_FLAG_OUT_OF_SERVICE,
                 Analog_Input_Out_Of_Service(object_instance));
             apdu_len = encode_application_bitstring(&apdu[0], &bit_string);
             break;
 
         case PROP_OUT_OF_SERVICE:
-            apdu_len = encode_application_boolean(&apdu[0],
-                Analog_Input_Out_Of_Service(object_instance));
+            apdu_len = encode_application_boolean(
+                &apdu[0], Analog_Input_Out_Of_Service(object_instance));
             break;
 
         case PROP_UNITS:
-            apdu_len = encode_application_enumerated(&apdu[0],
-                Analog_Input_Units(object_instance));
+            apdu_len = encode_application_enumerated(
+                &apdu[0], Analog_Input_Units(object_instance));
             break;
 
         default:
@@ -117,8 +116,7 @@ int Analog_Input_Read_Property(
     return apdu_len;
 }
 
-bool Analog_Input_Write_Property(
-    BACNET_WRITE_PROPERTY_DATA *wp_data)
+bool Analog_Input_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
 {
     bool status = false;
     int len;
@@ -128,8 +126,8 @@ bool Analog_Input_Write_Property(
         return false;
     }
 
-    len = bacapp_decode_application_data(wp_data->application_data,
-        wp_data->application_data_len, &value);
+    len = bacapp_decode_application_data(
+        wp_data->application_data, wp_data->application_data_len, &value);
 
     if (len < 0) {
         wp_data->error_class = ERROR_CLASS_PROPERTY;
@@ -140,16 +138,16 @@ bool Analog_Input_Write_Property(
     switch (wp_data->object_property) {
         case PROP_PRESENT_VALUE:
             if (value.tag == BACNET_APPLICATION_TAG_REAL) {
-                Analog_Input_Present_Value_Set(wp_data->object_instance,
-                    value.type.Real);
+                Analog_Input_Present_Value_Set(
+                    wp_data->object_instance, value.type.Real);
                 status = true;
             }
             break;
 
         case PROP_OUT_OF_SERVICE:
             if (value.tag == BACNET_APPLICATION_TAG_BOOLEAN) {
-                Analog_Input_Out_Of_Service_Set(wp_data->object_instance,
-                    value.type.Boolean);
+                Analog_Input_Out_Of_Service_Set(
+                    wp_data->object_instance, value.type.Boolean);
                 status = true;
             }
             break;
@@ -164,27 +162,19 @@ bool Analog_Input_Write_Property(
 }
 
 void Analog_Input_Property_Lists(
-    const int **pRequired,
-    const int **pOptional,
-    const int **pProprietary)
+    const int **pRequired, const int **pOptional, const int **pProprietary)
 {
-    static const int required[] = {
-        PROP_OBJECT_IDENTIFIER,
-        PROP_OBJECT_NAME,
-        PROP_OBJECT_TYPE,
-        PROP_PRESENT_VALUE,
-        PROP_STATUS_FLAGS,
-        PROP_OUT_OF_SERVICE,
-        PROP_UNITS,
-        -1
-    };
+    static const int required[] = { PROP_OBJECT_IDENTIFIER,
+                                    PROP_OBJECT_NAME,
+                                    PROP_OBJECT_TYPE,
+                                    PROP_PRESENT_VALUE,
+                                    PROP_STATUS_FLAGS,
+                                    PROP_OUT_OF_SERVICE,
+                                    PROP_UNITS,
+                                    -1 };
 
-    static const int optional[] = {
-        PROP_DESCRIPTION,
-        PROP_RELIABILITY,
-        PROP_COV_INCREMENT,
-        -1
-    };
+    static const int optional[] = { PROP_DESCRIPTION, PROP_RELIABILITY,
+                                    PROP_COV_INCREMENT, -1 };
 
     if (pRequired) {
         *pRequired = required;
@@ -203,8 +193,7 @@ void Analog_Input_Intrinsic_Reporting(uint32_t object_instance)
 }
 
 /* Analog Output property handlers */
-int Analog_Output_Read_Property(
-    BACNET_READ_PROPERTY_DATA *rpdata)
+int Analog_Output_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
 {
     int apdu_len = 0;
     uint8_t *apdu = NULL;
@@ -222,17 +211,19 @@ int Analog_Output_Read_Property(
 
     switch (rpdata->object_property) {
         case PROP_OBJECT_IDENTIFIER:
-            apdu_len = encode_application_object_id(&apdu[0],
-                OBJECT_ANALOG_OUTPUT, object_instance);
+            apdu_len = encode_application_object_id(
+                &apdu[0], OBJECT_ANALOG_OUTPUT, object_instance);
             break;
 
         case PROP_OBJECT_NAME:
             Analog_Output_Object_Name(object_instance, &char_string);
-            apdu_len = encode_application_character_string(&apdu[0], &char_string);
+            apdu_len =
+                encode_application_character_string(&apdu[0], &char_string);
             break;
 
         case PROP_OBJECT_TYPE:
-            apdu_len = encode_application_enumerated(&apdu[0], OBJECT_ANALOG_OUTPUT);
+            apdu_len =
+                encode_application_enumerated(&apdu[0], OBJECT_ANALOG_OUTPUT);
             break;
 
         case PROP_PRESENT_VALUE:
@@ -245,19 +236,20 @@ int Analog_Output_Read_Property(
             bitstring_set_bit(&bit_string, STATUS_FLAG_IN_ALARM, false);
             bitstring_set_bit(&bit_string, STATUS_FLAG_FAULT, false);
             bitstring_set_bit(&bit_string, STATUS_FLAG_OVERRIDDEN, false);
-            bitstring_set_bit(&bit_string, STATUS_FLAG_OUT_OF_SERVICE,
+            bitstring_set_bit(
+                &bit_string, STATUS_FLAG_OUT_OF_SERVICE,
                 Analog_Output_Out_Of_Service(object_instance));
             apdu_len = encode_application_bitstring(&apdu[0], &bit_string);
             break;
 
         case PROP_OUT_OF_SERVICE:
-            apdu_len = encode_application_boolean(&apdu[0],
-                Analog_Output_Out_Of_Service(object_instance));
+            apdu_len = encode_application_boolean(
+                &apdu[0], Analog_Output_Out_Of_Service(object_instance));
             break;
 
         case PROP_UNITS:
-            apdu_len = encode_application_enumerated(&apdu[0],
-                Analog_Output_Units(object_instance));
+            apdu_len = encode_application_enumerated(
+                &apdu[0], Analog_Output_Units(object_instance));
             break;
 
         case PROP_RELINQUISH_DEFAULT:
@@ -275,8 +267,7 @@ int Analog_Output_Read_Property(
     return apdu_len;
 }
 
-bool Analog_Output_Write_Property(
-    BACNET_WRITE_PROPERTY_DATA *wp_data)
+bool Analog_Output_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
 {
     bool status = false;
     int len;
@@ -286,8 +277,8 @@ bool Analog_Output_Write_Property(
         return false;
     }
 
-    len = bacapp_decode_application_data(wp_data->application_data,
-        wp_data->application_data_len, &value);
+    len = bacapp_decode_application_data(
+        wp_data->application_data, wp_data->application_data_len, &value);
 
     if (len < 0) {
         wp_data->error_class = ERROR_CLASS_PROPERTY;
@@ -298,15 +289,16 @@ bool Analog_Output_Write_Property(
     switch (wp_data->object_property) {
         case PROP_PRESENT_VALUE:
             if (value.tag == BACNET_APPLICATION_TAG_REAL) {
-                status = Analog_Output_Present_Value_Set(wp_data->object_instance,
-                    value.type.Real, wp_data->priority);
+                status = Analog_Output_Present_Value_Set(
+                    wp_data->object_instance, value.type.Real,
+                    wp_data->priority);
             }
             break;
 
         case PROP_OUT_OF_SERVICE:
             if (value.tag == BACNET_APPLICATION_TAG_BOOLEAN) {
-                Analog_Output_Out_Of_Service_Set(wp_data->object_instance,
-                    value.type.Boolean);
+                Analog_Output_Out_Of_Service_Set(
+                    wp_data->object_instance, value.type.Boolean);
                 status = true;
             }
             break;
@@ -321,27 +313,20 @@ bool Analog_Output_Write_Property(
 }
 
 void Analog_Output_Property_Lists(
-    const int **pRequired,
-    const int **pOptional,
-    const int **pProprietary)
+    const int **pRequired, const int **pOptional, const int **pProprietary)
 {
-    static const int required[] = {
-        PROP_OBJECT_IDENTIFIER,
-        PROP_OBJECT_NAME,
-        PROP_OBJECT_TYPE,
-        PROP_PRESENT_VALUE,
-        PROP_STATUS_FLAGS,
-        PROP_OUT_OF_SERVICE,
-        PROP_UNITS,
-        PROP_PRIORITY_ARRAY,
-        PROP_RELINQUISH_DEFAULT,
-        -1
-    };
+    static const int required[] = { PROP_OBJECT_IDENTIFIER,
+                                    PROP_OBJECT_NAME,
+                                    PROP_OBJECT_TYPE,
+                                    PROP_PRESENT_VALUE,
+                                    PROP_STATUS_FLAGS,
+                                    PROP_OUT_OF_SERVICE,
+                                    PROP_UNITS,
+                                    PROP_PRIORITY_ARRAY,
+                                    PROP_RELINQUISH_DEFAULT,
+                                    -1 };
 
-    static const int optional[] = {
-        PROP_DESCRIPTION,
-        -1
-    };
+    static const int optional[] = { PROP_DESCRIPTION, -1 };
 
     if (pRequired) {
         *pRequired = required;
@@ -355,8 +340,7 @@ void Analog_Output_Property_Lists(
 }
 
 /* Binary Input property handlers */
-int Binary_Input_Read_Property(
-    BACNET_READ_PROPERTY_DATA *rpdata)
+int Binary_Input_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
 {
     int apdu_len = 0;
     uint8_t *apdu = NULL;
@@ -374,17 +358,19 @@ int Binary_Input_Read_Property(
 
     switch (rpdata->object_property) {
         case PROP_OBJECT_IDENTIFIER:
-            apdu_len = encode_application_object_id(&apdu[0],
-                OBJECT_BINARY_INPUT, object_instance);
+            apdu_len = encode_application_object_id(
+                &apdu[0], OBJECT_BINARY_INPUT, object_instance);
             break;
 
         case PROP_OBJECT_NAME:
             Binary_Input_Object_Name(object_instance, &char_string);
-            apdu_len = encode_application_character_string(&apdu[0], &char_string);
+            apdu_len =
+                encode_application_character_string(&apdu[0], &char_string);
             break;
 
         case PROP_OBJECT_TYPE:
-            apdu_len = encode_application_enumerated(&apdu[0], OBJECT_BINARY_INPUT);
+            apdu_len =
+                encode_application_enumerated(&apdu[0], OBJECT_BINARY_INPUT);
             break;
 
         case PROP_PRESENT_VALUE:
@@ -397,19 +383,20 @@ int Binary_Input_Read_Property(
             bitstring_set_bit(&bit_string, STATUS_FLAG_IN_ALARM, false);
             bitstring_set_bit(&bit_string, STATUS_FLAG_FAULT, false);
             bitstring_set_bit(&bit_string, STATUS_FLAG_OVERRIDDEN, false);
-            bitstring_set_bit(&bit_string, STATUS_FLAG_OUT_OF_SERVICE,
+            bitstring_set_bit(
+                &bit_string, STATUS_FLAG_OUT_OF_SERVICE,
                 Binary_Input_Out_Of_Service(object_instance));
             apdu_len = encode_application_bitstring(&apdu[0], &bit_string);
             break;
 
         case PROP_OUT_OF_SERVICE:
-            apdu_len = encode_application_boolean(&apdu[0],
-                Binary_Input_Out_Of_Service(object_instance));
+            apdu_len = encode_application_boolean(
+                &apdu[0], Binary_Input_Out_Of_Service(object_instance));
             break;
 
         case PROP_POLARITY:
-            apdu_len = encode_application_enumerated(&apdu[0],
-                Binary_Input_Polarity(object_instance));
+            apdu_len = encode_application_enumerated(
+                &apdu[0], Binary_Input_Polarity(object_instance));
             break;
 
         default:
@@ -422,8 +409,7 @@ int Binary_Input_Read_Property(
     return apdu_len;
 }
 
-bool Binary_Input_Write_Property(
-    BACNET_WRITE_PROPERTY_DATA *wp_data)
+bool Binary_Input_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
 {
     bool status = false;
     int len;
@@ -433,8 +419,8 @@ bool Binary_Input_Write_Property(
         return false;
     }
 
-    len = bacapp_decode_application_data(wp_data->application_data,
-        wp_data->application_data_len, &value);
+    len = bacapp_decode_application_data(
+        wp_data->application_data, wp_data->application_data_len, &value);
 
     if (len < 0) {
         wp_data->error_class = ERROR_CLASS_PROPERTY;
@@ -445,15 +431,16 @@ bool Binary_Input_Write_Property(
     switch (wp_data->object_property) {
         case PROP_PRESENT_VALUE:
             if (value.tag == BACNET_APPLICATION_TAG_ENUMERATED) {
-                status = Binary_Input_Present_Value_Set(wp_data->object_instance,
+                status = Binary_Input_Present_Value_Set(
+                    wp_data->object_instance,
                     (BACNET_BINARY_PV)value.type.Enumerated);
             }
             break;
 
         case PROP_OUT_OF_SERVICE:
             if (value.tag == BACNET_APPLICATION_TAG_BOOLEAN) {
-                Binary_Input_Out_Of_Service_Set(wp_data->object_instance,
-                    value.type.Boolean);
+                Binary_Input_Out_Of_Service_Set(
+                    wp_data->object_instance, value.type.Boolean);
                 status = true;
             }
             break;
@@ -468,28 +455,15 @@ bool Binary_Input_Write_Property(
 }
 
 void Binary_Input_Property_Lists(
-    const int **pRequired,
-    const int **pOptional,
-    const int **pProprietary)
+    const int **pRequired, const int **pOptional, const int **pProprietary)
 {
-    static const int required[] = {
-        PROP_OBJECT_IDENTIFIER,
-        PROP_OBJECT_NAME,
-        PROP_OBJECT_TYPE,
-        PROP_PRESENT_VALUE,
-        PROP_STATUS_FLAGS,
-        PROP_OUT_OF_SERVICE,
-        PROP_POLARITY,
-        -1
-    };
+    static const int required[] = { PROP_OBJECT_IDENTIFIER, PROP_OBJECT_NAME,
+                                    PROP_OBJECT_TYPE,       PROP_PRESENT_VALUE,
+                                    PROP_STATUS_FLAGS,      PROP_OUT_OF_SERVICE,
+                                    PROP_POLARITY,          -1 };
 
-    static const int optional[] = {
-        PROP_DESCRIPTION,
-        PROP_RELIABILITY,
-        PROP_ACTIVE_TEXT,
-        PROP_INACTIVE_TEXT,
-        -1
-    };
+    static const int optional[] = { PROP_DESCRIPTION, PROP_RELIABILITY,
+                                    PROP_ACTIVE_TEXT, PROP_INACTIVE_TEXT, -1 };
 
     if (pRequired) {
         *pRequired = required;
@@ -508,8 +482,7 @@ void Binary_Input_Intrinsic_Reporting(uint32_t object_instance)
 }
 
 /* Binary Output property handlers */
-int Binary_Output_Read_Property(
-    BACNET_READ_PROPERTY_DATA *rpdata)
+int Binary_Output_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
 {
     int apdu_len = 0;
     uint8_t *apdu = NULL;
@@ -527,17 +500,19 @@ int Binary_Output_Read_Property(
 
     switch (rpdata->object_property) {
         case PROP_OBJECT_IDENTIFIER:
-            apdu_len = encode_application_object_id(&apdu[0],
-                OBJECT_BINARY_OUTPUT, object_instance);
+            apdu_len = encode_application_object_id(
+                &apdu[0], OBJECT_BINARY_OUTPUT, object_instance);
             break;
 
         case PROP_OBJECT_NAME:
             Binary_Output_Object_Name(object_instance, &char_string);
-            apdu_len = encode_application_character_string(&apdu[0], &char_string);
+            apdu_len =
+                encode_application_character_string(&apdu[0], &char_string);
             break;
 
         case PROP_OBJECT_TYPE:
-            apdu_len = encode_application_enumerated(&apdu[0], OBJECT_BINARY_OUTPUT);
+            apdu_len =
+                encode_application_enumerated(&apdu[0], OBJECT_BINARY_OUTPUT);
             break;
 
         case PROP_PRESENT_VALUE:
@@ -550,19 +525,20 @@ int Binary_Output_Read_Property(
             bitstring_set_bit(&bit_string, STATUS_FLAG_IN_ALARM, false);
             bitstring_set_bit(&bit_string, STATUS_FLAG_FAULT, false);
             bitstring_set_bit(&bit_string, STATUS_FLAG_OVERRIDDEN, false);
-            bitstring_set_bit(&bit_string, STATUS_FLAG_OUT_OF_SERVICE,
+            bitstring_set_bit(
+                &bit_string, STATUS_FLAG_OUT_OF_SERVICE,
                 Binary_Output_Out_Of_Service(object_instance));
             apdu_len = encode_application_bitstring(&apdu[0], &bit_string);
             break;
 
         case PROP_OUT_OF_SERVICE:
-            apdu_len = encode_application_boolean(&apdu[0],
-                Binary_Output_Out_Of_Service(object_instance));
+            apdu_len = encode_application_boolean(
+                &apdu[0], Binary_Output_Out_Of_Service(object_instance));
             break;
 
         case PROP_POLARITY:
-            apdu_len = encode_application_enumerated(&apdu[0],
-                Binary_Output_Polarity(object_instance));
+            apdu_len = encode_application_enumerated(
+                &apdu[0], Binary_Output_Polarity(object_instance));
             break;
 
         case PROP_RELINQUISH_DEFAULT:
@@ -580,8 +556,7 @@ int Binary_Output_Read_Property(
     return apdu_len;
 }
 
-bool Binary_Output_Write_Property(
-    BACNET_WRITE_PROPERTY_DATA *wp_data)
+bool Binary_Output_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
 {
     bool status = false;
     int len;
@@ -591,8 +566,8 @@ bool Binary_Output_Write_Property(
         return false;
     }
 
-    len = bacapp_decode_application_data(wp_data->application_data,
-        wp_data->application_data_len, &value);
+    len = bacapp_decode_application_data(
+        wp_data->application_data, wp_data->application_data_len, &value);
 
     if (len < 0) {
         wp_data->error_class = ERROR_CLASS_PROPERTY;
@@ -603,15 +578,16 @@ bool Binary_Output_Write_Property(
     switch (wp_data->object_property) {
         case PROP_PRESENT_VALUE:
             if (value.tag == BACNET_APPLICATION_TAG_ENUMERATED) {
-                status = Binary_Output_Present_Value_Set(wp_data->object_instance,
+                status = Binary_Output_Present_Value_Set(
+                    wp_data->object_instance,
                     (BACNET_BINARY_PV)value.type.Enumerated, wp_data->priority);
             }
             break;
 
         case PROP_OUT_OF_SERVICE:
             if (value.tag == BACNET_APPLICATION_TAG_BOOLEAN) {
-                Binary_Output_Out_Of_Service_Set(wp_data->object_instance,
-                    value.type.Boolean);
+                Binary_Output_Out_Of_Service_Set(
+                    wp_data->object_instance, value.type.Boolean);
                 status = true;
             }
             break;
@@ -626,29 +602,18 @@ bool Binary_Output_Write_Property(
 }
 
 void Binary_Output_Property_Lists(
-    const int **pRequired,
-    const int **pOptional,
-    const int **pProprietary)
+    const int **pRequired, const int **pOptional, const int **pProprietary)
 {
     static const int required[] = {
-        PROP_OBJECT_IDENTIFIER,
-        PROP_OBJECT_NAME,
-        PROP_OBJECT_TYPE,
-        PROP_PRESENT_VALUE,
-        PROP_STATUS_FLAGS,
-        PROP_OUT_OF_SERVICE,
-        PROP_POLARITY,
-        PROP_PRIORITY_ARRAY,
-        PROP_RELINQUISH_DEFAULT,
-        -1
+        PROP_OBJECT_IDENTIFIER,  PROP_OBJECT_NAME,
+        PROP_OBJECT_TYPE,        PROP_PRESENT_VALUE,
+        PROP_STATUS_FLAGS,       PROP_OUT_OF_SERVICE,
+        PROP_POLARITY,           PROP_PRIORITY_ARRAY,
+        PROP_RELINQUISH_DEFAULT, -1
     };
 
-    static const int optional[] = {
-        PROP_DESCRIPTION,
-        PROP_ACTIVE_TEXT,
-        PROP_INACTIVE_TEXT,
-        -1
-    };
+    static const int optional[] = { PROP_DESCRIPTION, PROP_ACTIVE_TEXT,
+                                    PROP_INACTIVE_TEXT, -1 };
 
     if (pRequired) {
         *pRequired = required;
@@ -666,35 +631,45 @@ void Binary_Output_Intrinsic_Reporting(uint32_t object_instance)
     (void)object_instance;
 }
 
-
 /* Global variables stub */
 volatile uint32_t millisecond_counter = 0;
 
 /* Missing symbols from datetime.c */
-const uint8_t days_per_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-const uint32_t days_since_epoch[16] = {0, 366, 731, 1096, 1461, 1827, 2192, 2557, 2922, 3288, 3653, 4018, 4383, 4749, 5114, 5479};
-const uint16_t days_of_year_to_month_day[366] = {0}; /* Simplified stub */
-const char *days_of_week[7] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+const uint8_t days_per_month[12] = { 31, 28, 31, 30, 31, 30,
+                                     31, 31, 30, 31, 30, 31 };
+const uint32_t days_since_epoch[16] = { 0,    366,  731,  1096, 1461, 1827,
+                                        2192, 2557, 2922, 3288, 3653, 4018,
+                                        4383, 4749, 5114, 5479 };
+const uint16_t days_of_year_to_month_day[366] = { 0 }; /* Simplified stub */
+const char *days_of_week[7] = {
+    "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+};
 
-bool days_is_leap_year(uint16_t year) {
+bool days_is_leap_year(uint16_t year)
+{
     return ((year % 4) == 0) && (((year % 100) != 0) || ((year % 400) == 0));
 }
 
 /* MSTP timer stubs */
-void mstimer_init(void) {
+void mstimer_init(void)
+{
     /* Stub */
 }
 
-uint32_t mstimer_now(void) {
+uint32_t mstimer_now(void)
+{
     return millisecond_counter;
 }
 
 /* More missing symbols */
-void Device_Inc_Database_Revision(void) {
+void Device_Inc_Database_Revision(void)
+{
     /* Stub */
 }
 
 /* dlmstp_receive - MSTP receive function */
-void dlmstp_receive(void) {
+void dlmstp_receive(void)
+{
     /* Stub */
 }
+

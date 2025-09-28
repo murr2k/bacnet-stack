@@ -108,7 +108,8 @@ unsigned Analog_Input_Instance_To_Index(uint32_t object_instance)
 /**
  * @brief Get analog input object name
  */
-bool Analog_Input_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
+bool Analog_Input_Object_Name(
+    uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
 {
     bool status = false;
     unsigned index = Analog_Input_Instance_To_Index(object_instance);
@@ -123,7 +124,8 @@ bool Analog_Input_Object_Name(uint32_t object_instance, BACNET_CHARACTER_STRING 
 /**
  * @brief Set analog input object name
  */
-bool Analog_Input_Object_Name_Set(uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
+bool Analog_Input_Object_Name_Set(
+    uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
 {
     bool status = false;
     unsigned index = Analog_Input_Instance_To_Index(object_instance);
@@ -158,7 +160,8 @@ void Analog_Input_Present_Value_Set(uint32_t object_instance, float value)
     unsigned index = Analog_Input_Instance_To_Index(object_instance);
 
     if (index < MAX_ANALOG_INPUTS) {
-        if (AI_Data[index].Out_Of_Service || AI_Data[index].Present_Value_writable) {
+        if (AI_Data[index].Out_Of_Service ||
+            AI_Data[index].Present_Value_writable) {
             /* Check limits */
             if (value >= AI_Data[index].Min_Present_Value &&
                 value <= AI_Data[index].Max_Present_Value) {
@@ -250,7 +253,8 @@ BACNET_RELIABILITY Analog_Input_Reliability(uint32_t object_instance)
 /**
  * @brief Set analog input reliability
  */
-bool Analog_Input_Reliability_Set(uint32_t object_instance, BACNET_RELIABILITY reliability)
+bool Analog_Input_Reliability_Set(
+    uint32_t object_instance, BACNET_RELIABILITY reliability)
 {
     unsigned index = Analog_Input_Instance_To_Index(object_instance);
     bool status = false;
@@ -335,13 +339,15 @@ const char *Analog_Input_Description(uint32_t object_instance)
 /**
  * @brief Set analog input description
  */
-bool Analog_Input_Description_Set(uint32_t object_instance, const char *description)
+bool Analog_Input_Description_Set(
+    uint32_t object_instance, const char *description)
 {
     bool status = false;
     unsigned index = Analog_Input_Instance_To_Index(object_instance);
 
     if (index < MAX_ANALOG_INPUTS && description) {
-        status = characterstring_init_ansi(&AI_Data[index].Description, description);
+        status =
+            characterstring_init_ansi(&AI_Data[index].Description, description);
     }
 
     return status;
