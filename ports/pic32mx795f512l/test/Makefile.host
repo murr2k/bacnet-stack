@@ -14,35 +14,35 @@ HOST_BUILD_DIR = host_build
 
 # Port source files
 PORT_SRCS = \
-	../ai.c \
-	../ao.c \
-	../bi.c \
-	../bo.c \
-	../device.c \
-	../dlmstp.c \
-	../rs485.c \
-	../stubs.c
+    ../ai.c \
+    ../ao.c \
+    ../bi.c \
+    ../bo.c \
+    ../device.c \
+    ../dlmstp.c \
+    ../rs485.c \
+    ../stubs.c
 
 # BACnet stack sources needed
 BACNET_SRCS = \
-	../../../src/bacnet/bacstr.c \
-	../../../src/bacnet/bacint.c \
-	../../../src/bacnet/bacreal.c \
-	../../../src/bacnet/bacdcode.c \
-	../../../src/bacnet/bacapp.c \
-	../../../src/bacnet/bactext.c \
-	../../../src/bacnet/indtext.c \
-	../../../src/bacnet/bacaddr.c \
-	../../../src/bacnet/bacerror.c \
-	../../../src/bacnet/bacprop.c \
-	../../../src/bacnet/datetime.c \
-	../../../src/bacnet/npdu.c \
-	../../../src/bacnet/basic/sys/fifo.c \
-	../../../src/bacnet/basic/sys/ringbuf.c \
-	../../../src/bacnet/datalink/mstp.c \
-	../../../src/bacnet/datalink/mstptext.c \
-	../../../src/bacnet/datalink/crc.c \
-	../../../src/bacnet/datalink/cobs.c
+    ../../../src/bacnet/bacstr.c \
+    ../../../src/bacnet/bacint.c \
+    ../../../src/bacnet/bacreal.c \
+    ../../../src/bacnet/bacdcode.c \
+    ../../../src/bacnet/bacapp.c \
+    ../../../src/bacnet/bactext.c \
+    ../../../src/bacnet/indtext.c \
+    ../../../src/bacnet/bacaddr.c \
+    ../../../src/bacnet/bacerror.c \
+    ../../../src/bacnet/bacprop.c \
+    ../../../src/bacnet/datetime.c \
+    ../../../src/bacnet/npdu.c \
+    ../../../src/bacnet/basic/sys/fifo.c \
+    ../../../src/bacnet/basic/sys/ringbuf.c \
+    ../../../src/bacnet/datalink/mstp.c \
+    ../../../src/bacnet/datalink/mstptext.c \
+    ../../../src/bacnet/datalink/crc.c \
+    ../../../src/bacnet/datalink/cobs.c
 
 # Convert to object files
 PORT_OBJS = $(patsubst ../%.c,$(HOST_BUILD_DIR)/%.o,$(PORT_SRCS))
@@ -54,47 +54,47 @@ TEST_EXE = test_abi_host
 all: $(HOST_BUILD_DIR) $(TEST_EXE)
 
 $(HOST_BUILD_DIR):
-	mkdir -p $(HOST_BUILD_DIR)
-	mkdir -p $(HOST_BUILD_DIR)/bacnet
-	mkdir -p $(HOST_BUILD_DIR)/bacnet/basic/sys
-	mkdir -p $(HOST_BUILD_DIR)/bacnet/datalink
+    mkdir -p $(HOST_BUILD_DIR)
+    mkdir -p $(HOST_BUILD_DIR)/bacnet
+    mkdir -p $(HOST_BUILD_DIR)/bacnet/basic/sys
+    mkdir -p $(HOST_BUILD_DIR)/bacnet/datalink
 
 # Compile port files with host compiler
 $(HOST_BUILD_DIR)/%.o: ../%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+    $(CC) $(CFLAGS) -c $< -o $@
 
 # Compile BACnet stack files with host compiler
 $(HOST_BUILD_DIR)/%.o: ../../../src/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+    $(CC) $(CFLAGS) -c $< -o $@
 
 # Build test executable
 $(TEST_EXE): test_abi_compatibility.c $(PORT_OBJS) $(BACNET_OBJS)
-	$(CC) $(CFLAGS) -o $@ test_abi_compatibility.c $(PORT_OBJS) $(BACNET_OBJS) -lm
+    $(CC) $(CFLAGS) -o $@ test_abi_compatibility.c $(PORT_OBJS) $(BACNET_OBJS) -lm
 
 # Run ABI compatibility test
 test: $(TEST_EXE)
-	@echo "=========================================="
-	@echo " Running ABI Compatibility Test"
-	@echo " (Host-compiled for verification)"
-	@echo "=========================================="
-	./$(TEST_EXE)
-	@echo ""
-	@if [ -f ABI_COMPATIBILITY_REPORT.md ]; then \
-		echo "Report generated: ABI_COMPATIBILITY_REPORT.md"; \
-		echo ""; \
-		grep -A2 "Executive Summary" ABI_COMPATIBILITY_REPORT.md; \
-	fi
+    @echo "=========================================="
+    @echo " Running ABI Compatibility Test"
+    @echo " (Host-compiled for verification)"
+    @echo "=========================================="
+    ./$(TEST_EXE)
+    @echo ""
+    @if [ -f ABI_COMPATIBILITY_REPORT.md ]; then \
+        echo "Report generated: ABI_COMPATIBILITY_REPORT.md"; \
+        echo ""; \
+        grep -A2 "Executive Summary" ABI_COMPATIBILITY_REPORT.md; \
+    fi
 
 # View the report
 report:
-	@if [ -f ABI_COMPATIBILITY_REPORT.md ]; then \
-		cat ABI_COMPATIBILITY_REPORT.md; \
-	else \
-		echo "No report found. Run 'make test' first."; \
-	fi
+    @if [ -f ABI_COMPATIBILITY_REPORT.md ]; then \
+        cat ABI_COMPATIBILITY_REPORT.md; \
+    else \
+        echo "No report found. Run 'make test' first."; \
+    fi
 
 # Clean
 clean:
-	rm -rf $(HOST_BUILD_DIR) $(TEST_EXE) ABI_COMPATIBILITY_REPORT.md
+    rm -rf $(HOST_BUILD_DIR) $(TEST_EXE) ABI_COMPATIBILITY_REPORT.md
 
 .PHONY: all test report clean
