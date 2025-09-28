@@ -70,16 +70,27 @@ jobs:
           echo "compatibility_rate=N/A" >> $GITHUB_OUTPUT
         fi
 
-    - name: Create status badge
+    - name: Update badge gist
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-      uses: schneegans/dynamic-badges-action@v1.6.0
-      with:
-        auth: ${{ secrets.GIST_SECRET }}
-        gistID: d9e183fda10aaa641ddb6ec578293727
-        filename: pic32mx-abi-badge.json
-        label: PIC32MX ABI
-        message: ${{ steps.test-results.outputs.compatibility_rate }}
-        color: ${{ steps.test-results.outputs.badge_color }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GIST_SECRET }}
+      run: |
+        # Create badge JSON
+        cat > badge.json << EOF
+        {
+          "schemaVersion": 1,
+          "label": "PIC32MX ABI",
+          "message": "${{ steps.test-results.outputs.compatibility_rate }}",
+          "color": "${{ steps.test-results.outputs.badge_color }}"
+        }
+        EOF
+
+        # Update gist using GitHub API
+        curl -X PATCH \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/gists/d9e183fda10aaa641ddb6ec578293727 \
+          -d "{\"files\":{\"pic32mx-abi-badge.json\":{\"content\":$(cat badge.json | jq -Rs .)}}}"
 
     - name: Comment on PR
       if: github.event_name == 'pull_request'
