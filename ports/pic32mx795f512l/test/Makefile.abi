@@ -41,33 +41,33 @@ TARGET = test_abi
 all: $(TARGET)
 
 $(TARGET): test_abi_compatibility.c $(PORT_OBJS) $(BACNET_OBJS)
-    $(CC) $(CFLAGS) -o $@ test_abi_compatibility.c $(PORT_OBJS) $(BACNET_OBJS) -lm
+	$(CC) $(CFLAGS) -o $@ test_abi_compatibility.c $(PORT_OBJS) $(BACNET_OBJS) -lm
 
 # Use existing compiled objects from main build
 check-objs:
-    @if [ ! -f ../build/ai.o ]; then \
-        echo "Error: Port not built. Run 'make' in parent directory first"; \
-        exit 1; \
-    fi
+	@if [ ! -f ../build/ai.o ]; then \
+		echo "Error: Port not built. Run 'make' in parent directory first"; \
+		exit 1; \
+	fi
 
 test: check-objs $(TARGET)
-    @echo "=========================================="
-    @echo " Running ABI Compatibility Test"
-    @echo "=========================================="
-    ./$(TARGET)
-    @echo ""
-    @if grep -q "BINARY COMPATIBLE" ABI_COMPATIBILITY_REPORT.md; then \
-        echo "✅ SUCCESS: Port is binary compatible with API headers"; \
-        echo "✅ Can be shipped as compiled library"; \
-    else \
-        echo "⚠️ WARNING: Compatibility issues detected"; \
-        echo "Review ABI_COMPATIBILITY_REPORT.md for details"; \
-    fi
+	@echo "=========================================="
+	@echo " Running ABI Compatibility Test"
+	@echo "=========================================="
+	./$(TARGET)
+	@echo ""
+	@if grep -q "BINARY COMPATIBLE" ABI_COMPATIBILITY_REPORT.md; then \
+		echo "✅ SUCCESS: Port is binary compatible with API headers"; \
+		echo "✅ Can be shipped as compiled library"; \
+	else \
+		echo "⚠️ WARNING: Compatibility issues detected"; \
+		echo "Review ABI_COMPATIBILITY_REPORT.md for details"; \
+	fi
 
 report:
-    @cat ABI_COMPATIBILITY_REPORT.md
+	@cat ABI_COMPATIBILITY_REPORT.md
 
 clean:
-    rm -f $(TARGET) ABI_COMPATIBILITY_REPORT.md
+	rm -f $(TARGET) ABI_COMPATIBILITY_REPORT.md
 
 .PHONY: all test check-objs report clean
